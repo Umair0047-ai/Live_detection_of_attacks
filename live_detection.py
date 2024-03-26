@@ -384,6 +384,226 @@ if __name__ == '__main__':
     conf = confusion_matrix(y1,predictions)
     print(conf)
    
+
+ ##BALANCED DATA_SET
+
+    #1. RANDOM FOREST
+
+    start_time_loading_model = time.time()
+
+    with open('balanced_model_RF.pkl','rb') as f:
+       model_Rf = pickle.load(f)
+    end_time_loading_model = time.time()
+
+    tot_time_loading_model = end_time_loading_model - start_time_loading_model
+    print("The process of loading the model:",tot_time_loading_model)
+
+    ## data preprocessing
+    ## 1. loading the data
+    ## 2. removing the features
+    ## 3. Cutting the data into frames and labeling the data.
+    ## 4. Combining it to get the accuracy
+    
+    start_time_preprocessing = time.time()
+
+    df1 = pd.read_csv('bal_tcp_captured_pac.csv')
+    df1 = df1.fillna(0)
+    
+    df2 = pd.read_csv('bal_udp_captured_pac.csv')
+    df2 = df2.fillna(0)
+
+    df3 = pd.read_csv('bal_rtsp_captured_pac.csv')
+    df3 = df3.fillna(0)
+
+    df4 = pd.read_csv('bal_Normal_captured_pac.csv')
+    df4 = df4.fillna(0)
+    
+    df1 = df1.drop(['ip.src','ip.dst','ipv6.src','ipv6.dst','eth.src','eth.dst','ip.id','tcp.flags','ipv6.dst','ip.ttl','icmp.length','http.request.method','http.response.code','http.content_length'],axis = 1)
+    df1 = pd.get_dummies(df1)
+    df1['attack_type'] = 'TCP_flood'
+    
+    # ## size for the udp_attack
+    
+    df2 = df2.drop(['ip.src','ip.dst','ipv6.src','ipv6.dst','eth.src','eth.dst','ip.id','tcp.flags','ipv6.dst','ip.ttl','icmp.length','http.request.method','http.response.code','http.content_length'],axis = 1)
+    df2 = pd.get_dummies(df2)
+    df2['attack_type'] = 'Udp_flood'
+
+    ## size for the rtsp_attack
+    df3 = df3.drop(['ip.src','ip.dst','ipv6.src','ipv6.dst','eth.src','eth.dst','ip.id','tcp.flags','ipv6.dst','ip.ttl','icmp.length','http.request.method','http.response.code','http.content_length'],axis = 1)
+    df3 = pd.get_dummies(df3)
+    df3['attack_type'] = 'Brute_force'
+
+    df4 = df4.drop(['ip.src','ip.dst','ipv6.src','ipv6.dst','eth.src','eth.dst','ip.id','tcp.flags','ipv6.dst','ip.ttl','icmp.length','http.request.method','http.response.code','http.content_length'],axis = 1)
+    df4 = pd.get_dummies(df4)
+    df4['attack_type'] = 'Normal_traffic'
+
+    #df5 = df5.drop(['ip.src','ip.dst','ipv6.src','ipv6.dst','eth.src','eth.dst','ip.id','tcp.flags','ipv6.dst','ip.ttl','icmp.length','http.request.method','http.response.code','http.content_length'],axis = 1)
+    #df5 = pd.get_dummies(df5)
+    #df5['attack_type'] = 'Http_flood'
+
+    
+    frames = [df1,df2,df3,df4]
+    res = pd.concat(frames)
+    
+    y1 = res['attack_type']
+    X1 = res.drop('attack_type',axis=1)
+
+    end_time_preprocessing = time.time()
+    tot_time_preprocessing = end_time_preprocessing - start_time_preprocessing
+    print("Total_prcocessing_Time",tot_time_preprocessing)
+
+    
+    start_time_model_prediction = time.time()
+
+    predictions = model_Rf.predict(X1)
+
+    end_time_model_prediction = time.time()
+
+    tot_time_prediction = end_time_model_prediction - start_time_model_prediction
+    
+    print("prediction_time_for_Random_forest_500k",tot_time_prediction)
+    acc = (y1==predictions).mean()
+    print("Accuracy",acc)
+    
+    report = classification_report(y1,predictions)
+    print(report)
+    conf = confusion_matrix(y1,predictions)
+    print(conf)
+   
+##2. NAIVE BAYES:
+    
+    
+    start_time_loading_model = time.time()
+
+    with open('balanced_model_NB.pkl','rb') as f:
+       model_NB = pickle.load(f)
+    end_time_loading_model = time.time()
+
+    tot_time_loading_model = end_time_loading_model - start_time_loading_model
+    print("The process of loading the model:",tot_time_loading_model)
+
+
+    end_time_preprocessing = time.time()
+    tot_time_preprocessing = end_time_preprocessing - start_time_preprocessing
+    print("Total_prcocessing_Time",tot_time_preprocessing)
+
+    
+    start_time_model_prediction = time.time()
+
+    predictions = model_NB.predict(X1)
+
+    end_time_model_prediction = time.time()
+
+    tot_time_prediction = end_time_model_prediction - start_time_model_prediction
+    
+    print("prediction_time_for_NAIVE_BAYES_500k",tot_time_prediction)
+    acc = (y1==predictions).mean()
+    print("Accuracy",acc)
+    
+    report = classification_report(y1,predictions)
+    print(report)
+    conf = confusion_matrix(y1,predictions)
+    print(conf)
+   
+   
+##3. LOG REGRESSION
+    
+    start_time_loading_model = time.time()
+
+    with open('balanced_model_LG.pkl','rb') as f:
+       model_LG = pickle.load(f)
+    end_time_loading_model = time.time()
+
+    tot_time_loading_model = end_time_loading_model - start_time_loading_model
+    print("The process of loading the model:",tot_time_loading_model)   
+   
+    end_time_preprocessing = time.time()
+    tot_time_preprocessing = end_time_preprocessing - start_time_preprocessing
+    print("Total_prcocessing_Time",tot_time_preprocessing)
+
+    
+    start_time_model_prediction = time.time()
+
+    predictions = model_LG.predict(X1)
+
+    end_time_model_prediction = time.time()
+
+    tot_time_prediction = end_time_model_prediction - start_time_model_prediction
+    
+    print("prediction_time_for_LOG_REGRESSION_500k:",tot_time_prediction)
+    acc = (y1==predictions).mean()
+    print("Accuracy",acc)
+    
+    report = classification_report(y1,predictions)
+    print(report)
+    conf = confusion_matrix(y1,predictions)
+    print(conf)
+   
+   ##4. ADABOOST 
+     
+    start_time_loading_model = time.time()
+
+    with open('balanced_model_AB.pkl','rb') as f:
+       model_AB = pickle.load(f)
+    end_time_loading_model = time.time()
+
+    tot_time_loading_model = end_time_loading_model - start_time_loading_model
+    print("The process of loading the model:",tot_time_loading_model)   
+   
+    end_time_preprocessing = time.time()
+    tot_time_preprocessing = end_time_preprocessing - start_time_preprocessing
+    print("Total_prcocessing_Time",tot_time_preprocessing)
+
+    
+    start_time_model_prediction = time.time()
+
+    predictions = model_AB.predict(X1)
+
+    end_time_model_prediction = time.time()
+
+    tot_time_prediction = end_time_model_prediction - start_time_model_prediction
+    
+    print("prediction_time_for_ADA_BOOST_500k:",tot_time_prediction)
+    acc = (y1==predictions).mean()
+    print("Accuracy",acc)
+    
+    report = classification_report(y1,predictions)
+    print(report)
+    conf = confusion_matrix(y1,predictions)
+    print(conf)
+   
+    ##5. PERCEPTRON
+    
+    start_time_loading_model = time.time()
+
+    with open('balanced_model_PP.pkl','rb') as f:
+       model_PP = pickle.load(f)
+    end_time_loading_model = time.time()
+
+    tot_time_loading_model = end_time_loading_model - start_time_loading_model
+    print("The process of loading the model:",tot_time_loading_model)   
+   
+    end_time_preprocessing = time.time()
+    tot_time_preprocessing = end_time_preprocessing - start_time_preprocessing
+    print("Total_prcocessing_Time",tot_time_preprocessing)
+
+    
+    start_time_model_prediction = time.time()
+
+    predictions = model_PP.predict(X1)
+
+    end_time_model_prediction = time.time()
+
+    tot_time_prediction = end_time_model_prediction - start_time_model_prediction
+    
+    print("prediction_time_for_PERCEPTRON_500k:",tot_time_prediction)
+    acc = (y1==predictions).mean()
+    print("Accuracy",acc)
+    
+    report = classification_report(y1,predictions)
+    print(report)
+    conf = confusion_matrix(y1,predictions)
+    print(conf)
    
     #pJ = {'predictions':predictions.tolist()}
     
